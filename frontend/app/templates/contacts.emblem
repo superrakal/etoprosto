@@ -1,0 +1,25 @@
+.ui.container
+  h2.center Напишите нам!
+  form.ui.form{action 'send' on='submit'}
+    .two.fields
+      .field
+        label Email
+        = input placeholder="user@example.com" type="email" required=true value=model.email
+      .field
+        label Имя
+        = input placeholder="Иван" type="text" required=true value=model.name
+    .field
+      label Сообщение
+      = textarea rows="2" value=model.message
+    .field
+      button.ui.button type="submit" Отправить
+  h3
+    i.icon.phone
+    |(383) 208-11-17
+  h3
+    i.icon.mail
+    |etoprosto@yandex.ru
+  p Организатор Детский благотворительный фонд «Солнечный город»
+  h4
+    a href="http://suncitylife.ru" target="_blank"
+      |www.suncitylife.ru

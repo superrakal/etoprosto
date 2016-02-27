@@ -1,0 +1,24 @@
+ui-modal class="small eventsModal" name="events-modal"
+  .ui.middle.aligned.grid
+    .column
+      .ui.header
+        .pull-left
+          = modalDay
+        = if modalEvents.length
+          .pull-right
+            = modalEvents.length
+            |&nbsp;
+            = rightEndWord
+      .content
+        = each modalEvents as |event|
+          .event
+            .head
+              .title.pull-left
+                = event.title
+              .time.pull-right
+                i.icon.time
+                = event.formattedTime
+            .short_description
+              = event.short_description
+
+

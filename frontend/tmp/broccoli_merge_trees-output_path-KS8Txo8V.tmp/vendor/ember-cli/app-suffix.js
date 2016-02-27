@@ -1,0 +1,1 @@
+/home/egor/RubymineProjects/projectx/frontend/tmp/config_replace-output_path-GdCuvn9g.tmp/app-suffix.js

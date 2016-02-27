@@ -1,0 +1,1 @@
+/home/egor/RubymineProjects/projectx/frontend/tmp/broccoli_merge_trees-input_base_path-9Vn4XoE6.tmp/1/assets/frontend.js

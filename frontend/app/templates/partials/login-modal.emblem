@@ -1,0 +1,24 @@
+ui-modal class="small loginModal" name="login-modal"
+  .ui.middle.aligned.center.aligned.grid
+    .column
+      h2.ui.teal.image.header
+        img.image src="assets/images/logo.png"
+      .content
+        | Войдите в свой аккаунт
+      form.ui.large.form
+        .form-errors
+          = loginError
+        .ui.stacked.segment
+          .field
+            .ui.left.icon.input
+              i.user.icon
+              = input type='email' placeholder="Email" value=identification
+          .field
+            .ui.left.icon.input
+              i.lock.icon
+              = input type='password' placeholder="Пароль" value=password
+
+          .ui.fluid.large.blue.submit.button{action 'authenticate'} Войти
+      .ui.message
+        | Впервые с нами?
+        a href="#"  Создайте аккаунт

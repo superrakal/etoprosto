@@ -1,0 +1,1 @@
+/home/egor/RubymineProjects/projectx/frontend/tmp/coffee_script_filter-input_base_path-y1zct1xK.tmp/0/frontend/instance-initializers/ember-simple-auth.js

@@ -1,0 +1,14 @@
+a.ui.dropdown.inline
+  img.ui.avatar.image src=session.currentUser.avatar_url
+  = session.currentUser.first_name
+  |&nbsp;
+  = session.currentUser.second_name
+  i.dropdown.icon
+  .menu
+    .item{action 'gotoCabinet'}
+      = link-to 'cabinet' session.currentUser.id tagName='span'
+        i.icon.user
+        | Кабинет
+    .item{action 'invalidateSession'}
+      i.sign.out.icon
+      | Выход

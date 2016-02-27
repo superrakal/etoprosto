@@ -1,0 +1,1 @@
+/home/egor/RubymineProjects/projectx/frontend/app/instance-initializers/session.js

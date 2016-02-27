@@ -1,0 +1,1 @@
+/home/egor/RubymineProjects/projectx/frontend/tmp/funnel-input_base_path-R0o2I3lh.tmp/0//testem.js

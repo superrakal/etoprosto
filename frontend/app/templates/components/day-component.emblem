@@ -1,0 +1,8 @@
+.day class=isHaveEvents:active
+  .head.text-center
+    = if isHaveEvents
+      i.icon.info.pull-left{action 'openEventModal'}
+      span.events_count.pull-right
+        = events_count_string
+  .number.text-center class=isActualDay:default:muted
+    = dateNumber

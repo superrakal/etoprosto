@@ -1,0 +1,73 @@
+.calendar
+  .day
+    border-radius: 5px
+    .number
+      padding: 10px
+      width: 100%
+      line-height: 180px
+      height: 200px
+      font-weight: bold
+      font-size: 30px
+      background-color: #eceff4
+      &.muted
+        color: #ABAEB2 !important
+
+    .head
+      width: 100%
+      height: 40px
+      line-height: 40px
+      color: #b1fdc3
+      font-size: 20px
+      padding: 0 10px
+      background-color: #D8DDE4
+      i
+        cursor: pointer
+      span
+        width: 30px
+        height: 30px
+        line-height: 30px
+        background-color: #ed4b3e
+        border-radius: 50%
+        margin-top: 5px
+        color: white
+
+    &.active
+      .head
+        background-color: #34495e
+      .number
+        background-color: #eceff4
+
+.dates-scroller
+  width: 100%
+  text-align: center
+  margin: 10px 0
+  i
+    cursor: pointer
+  .text
+    width: 250px
+    display: inline-block
+
+.event
+  padding: 10px
+  border-bottom: 2px solid #b1fdc3
+  .title
+    max-width: 80%
+    overflow: hidden
+    text-overflow: ellipsis
+    white-space: nowrap
+  .title, .time
+    display: inline-block
+    font-size: 20px
+  .head
+    width: 100%
+    height: 30px
+
+
+.eventsModal
+  .content
+    max-height: 300px
+    overflow: auto
+  .header
+    background: #b1fdc3
+    padding: 10px 15px
+    height: 40px

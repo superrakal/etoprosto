@@ -1,0 +1,17 @@
+.container
+  .ui.dates-scroller
+    h2
+      i.angle.left.icon{action 'decrementMonth'}
+      .text
+        = selectedMonthName
+        |&nbsp;
+        = selectedYear
+      i.angle.right.icon{action 'incrementMonth'}
+    = days_count
+  .ui.stackable.seven.column.grid.calendar
+    = each dates as |date|
+      .column
+        = day-component selectedYear=selectedYear selectedMonth=selectedMonth dateNumber=date store=store openEventsModal="openEventsModal"
+
+= partial 'partials/events-modal'
+

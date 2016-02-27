@@ -1,0 +1,1 @@
+/home/egor/RubymineProjects/projectx/frontend/tmp/funnel-input_base_path-YcpRwVEp.tmp/0/components/flash-message.js

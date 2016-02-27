@@ -1,0 +1,1 @@
+/home/egor/RubymineProjects/projectx/frontend/tmp/funnel-input_base_path-NuAO5xZe.tmp/0/utils/inject.js

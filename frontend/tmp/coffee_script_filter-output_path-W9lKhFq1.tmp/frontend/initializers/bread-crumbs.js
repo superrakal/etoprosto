@@ -1,0 +1,1 @@
+/home/egor/RubymineProjects/projectx/frontend/node_modules/ember-breadcrumbs/app/initializers/bread-crumbs.js

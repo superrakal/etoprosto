@@ -1,0 +1,25 @@
+.ui.inverted.vertical.masthead.center.aligned.segment
+  .top-menu
+    .ui.container
+      .ui.large.secondary.inverted.pointing.menu
+        a.toc.item
+          i.sidebar.icon
+        = link-to 'root' class='item'
+          span{action 'changePath' 'root'}
+            |Главная
+        a.item Фонды
+        = link-to 'events' class='item'
+          span{action 'changePath' 'events'}
+            |События
+        = link-to 'contacts' class='item'
+          span{action 'changePath' 'contacts'}
+            |Контакты
+        .right.item
+          = if session.isAuthenticated
+            = navbar-profile invalidateSession="invalidateSession" changePath="changePath"
+          = else
+            button.ui.inverted.button{action 'openLoginModal'} Войти
+            = link-to 'sign-up' class='ui inverted button'
+              |Регистрация
+  .ui.text
+    = partial partial_path

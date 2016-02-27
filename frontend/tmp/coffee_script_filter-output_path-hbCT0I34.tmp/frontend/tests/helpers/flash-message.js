@@ -1,0 +1,1 @@
+/home/egor/RubymineProjects/projectx/frontend/tests/helpers/flash-message.js

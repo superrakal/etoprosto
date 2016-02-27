@@ -1,0 +1,41 @@
+= navbar-component openLoginModal="openLoginModal" authenticate="authenticate" invalidateSession="invalidateSession"
+
+ui-sidebar class="inverted vertical menu sidebar left"
+  a.active.item Главная
+  a.item Фонды
+  a.item События
+  a.item Контакты
+  a.item Войти
+  a.item Регистрация
+
+.pusher
+  = navigation-slider slider_partial_path=slider_partial_path openLoginModal="openLoginModal" authenticate="authenticate" invalidateSession="invalidateSession"
+  .ui.container
+    = each flashMessages.queue as |flash|
+      .ui.success.message
+        .header
+          = flash.message
+  = outlet
+  .ui.inverted.vertical.footer.segment
+    .ui.container
+      .ui.stackable.inverted.divided.equal.height.stackable.grid
+        .three.wide.column
+          h4.ui.inverted.header About
+          .ui.inverted.link.list
+            a.item href="http://semantic-ui.com/examples/homepage.html#"  Sitemap
+            a.item href="http://semantic-ui.com/examples/homepage.html#"  Contact Us
+            a.item href="http://semantic-ui.com/examples/homepage.html#"  Religious Ceremonies
+            a.item href="http://semantic-ui.com/examples/homepage.html#"  Gazebo Plans
+        .three.wide.column
+          h4.ui.inverted.header Services
+          .ui.inverted.link.list
+            a.item href="http://semantic-ui.com/examples/homepage.html#"  Banana Pre-Order
+            a.item href="http://semantic-ui.com/examples/homepage.html#"  DNA FAQ
+            a.item href="http://semantic-ui.com/examples/homepage.html#"  How To Access
+            a.item href="http://semantic-ui.com/examples/homepage.html#"  Favorite X-Men
+        .seven.wide.column
+          h4.ui.inverted.header Footer Header
+          p Extra space for a call to action inside the footer that could help re-engage users.
+
+= partial 'partials/login-modal'
+

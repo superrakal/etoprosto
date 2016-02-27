@@ -1,0 +1,1 @@
+/home/egor/RubymineProjects/projectx/frontend/tmp/funnel-input_base_path-0OG0wRwM.tmp/0/bower_components/ember-cli-test-loader/test-loader.js

@@ -1,0 +1,18 @@
+.ui.large.top.fixed.hidden.menu
+  .ui.container
+    = link-to 'root' class='item'
+      |Главная
+    a.item Фонды
+    = link-to 'events' class='item'
+      |События
+    = link-to 'contacts' class='item'
+      |Контакты
+    .right.menu
+      = if session.isAuthenticated
+        = navbar-profile invalidateSession="invalidateSession"
+      = else
+        .item
+          a.ui.button{action 'openLoginModal'} Войти
+        .item
+          = link-to 'sign-up' class='ui button'
+            |Регистрация

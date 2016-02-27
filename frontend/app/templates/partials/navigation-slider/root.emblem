@@ -1,0 +1,6 @@
+h1.ui.inverted.header
+  | Imagine-a-Company
+h2 Do whatever you want when you want to.
+.ui.huge.primary.button
+  | Get Started
+  i.right.arrow.icon

@@ -1,0 +1,20 @@
+.ui.container
+  h2 Регистрация
+  form.ui.form{action 'save' on='submit'}
+    .field
+      label Email
+      = input placeholder="user@example.com" type="email" value=model.email required=true
+    .field
+      label Имя
+      = input placeholder="Иван" type="text" value=model.first_name required=true
+    .field
+      label Фамилия
+      = input placeholder="Иванов" type="text" value=model.second_name required=true
+    .field
+      label Пароль
+      = input type="password" class="password" value=model.password required=true
+    .field
+      label Подтверждение пароля
+      = input type="password" class="password" value=model.password_confirmation required=true
+
+    button.ui.button type="submit"  Создать аккаунт

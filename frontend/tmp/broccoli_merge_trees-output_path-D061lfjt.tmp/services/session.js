@@ -1,0 +1,1 @@
+/home/egor/RubymineProjects/projectx/frontend/app/services/session.js
