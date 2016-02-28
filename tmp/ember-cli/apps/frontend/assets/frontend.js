@@ -3838,7 +3838,7 @@ define("frontend/templates/partials/navigation-slider/root", ["exports"], functi
           },
           "end": {
             "line": 1,
-            "column": 185
+            "column": 72
           }
         },
         "moduleName": "frontend/templates/partials/navigation-slider/root.hbs"
@@ -3849,20 +3849,8 @@ define("frontend/templates/partials/navigation-slider/root", ["exports"], functi
       buildFragment: function buildFragment(dom) {
         var el0 = dom.createDocumentFragment();
         var el1 = dom.createElement("h1");
-        dom.setAttribute(el1, "class", "ui inverted header");
-        var el2 = dom.createTextNode("Imagine-a-Company");
-        dom.appendChild(el1, el2);
-        dom.appendChild(el0, el1);
-        var el1 = dom.createElement("h2");
-        var el2 = dom.createTextNode("Do whatever you want when you want to.");
-        dom.appendChild(el1, el2);
-        dom.appendChild(el0, el1);
-        var el1 = dom.createElement("div");
-        dom.setAttribute(el1, "class", "ui huge primary button");
-        var el2 = dom.createTextNode("Get Started");
-        dom.appendChild(el1, el2);
-        var el2 = dom.createElement("i");
-        dom.setAttribute(el2, "class", "right arrow icon");
+        dom.setAttribute(el1, "class", "ui header");
+        var el2 = dom.createTextNode("Всё то, что поможет сделать твою жизнь глубже");
         dom.appendChild(el1, el2);
         dom.appendChild(el0, el1);
         return el0;
@@ -4141,11 +4129,11 @@ define("frontend/templates/sign-up", ["exports"], function (exports) {
 /* jshint ignore:start */
 
 define('frontend/config/environment', ['ember'], function(Ember) {
-  return { 'default': {"modulePrefix":"frontend","environment":"development","baseURL":"/","locationType":"auto","EmberENV":{"FEATURES":{}},"APP":{"name":"frontend","version":"0.0.0.493df104"},"contentSecurityPolicyHeader":"Content-Security-Policy-Report-Only","contentSecurityPolicy":{"default-src":"'none'","script-src":"'self' 'unsafe-eval'","font-src":"'self'","connect-src":"'self'","img-src":"'self'","style-src":"'self'","media-src":"'self'"},"browserify":{"tests":true}}};
+  return { 'default': {"modulePrefix":"frontend","environment":"development","baseURL":"/","locationType":"auto","EmberENV":{"FEATURES":{}},"APP":{"name":"frontend","version":"0.0.0.22d7b284"},"contentSecurityPolicyHeader":"Content-Security-Policy-Report-Only","contentSecurityPolicy":{"default-src":"'none'","script-src":"'self' 'unsafe-eval'","font-src":"'self'","connect-src":"'self'","img-src":"'self'","style-src":"'self'","media-src":"'self'"},"browserify":{"tests":true}}};
 });
 
 if (!runningTests) {
-  require("frontend/app")["default"].create({"name":"frontend","version":"0.0.0.493df104"});
+  require("frontend/app")["default"].create({"name":"frontend","version":"0.0.0.22d7b284"});
 }
 
 /* jshint ignore:end */

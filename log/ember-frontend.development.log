@@ -4,3 +4,48 @@ version: 1.13.15
 Could not find watchman, falling back to NodeWatcher for file system events.
 Visit http://www.ember-cli.com/user-guide/#watchman for more info.
 BuildingBuilding.Building..Building...Built project successfully. Stored in "/home/egor/RubymineProjects/projectx/tmp/ember-cli/apps/frontend".
+DEPRECATION: Node v0.10.25 is no longer supported by Ember CLI. Please update to a more recent version of Node
+undefined
+version: 1.13.15
+Could not find watchman, falling back to NodeWatcher for file system events.
+Visit http://www.ember-cli.com/user-guide/#watchman for more info.
+BuildingBuilding.Building..Building...DEPRECATION: Node v0.10.25 is no longer supported by Ember CLI. Please update to a more recent version of Node
+undefined
+version: 1.13.15
+Could not find watchman, falling back to NodeWatcher for file system events.
+Visit http://www.ember-cli.com/user-guide/#watchman for more info.
+BuildingBuilding.Building..Building...Building...
+
+Build successful - 2682ms.
+
+Slowest Trees                                 | Total               
+----------------------------------------------+---------------------
+ConcatWithMaps: Concat: Vendor                | 1691ms              
+CoffeeScriptFilter                            | 166ms               
+
+Slowest Trees (cumulative)                    | Total (avg)         
+----------------------------------------------+---------------------
+ConcatWithMaps: Concat: Vendor (1)            | 1691ms              
+CoffeeScriptFilter (2)                        | 209ms (104 ms)      
+TemplateCompiler (4)                          | 207ms (51 ms)       
+Babel (11)                                    | 146ms (13 ms)       
+
+file changed templates/partials/navigation-slider/root.emblem
+
+Build successful - 267ms.
+
+Slowest Trees                                 | Total               
+----------------------------------------------+---------------------
+CoffeeScriptFilter                            | 46ms                
+Babel                                         | 42ms                
+ConcatWithMaps: Concat: App                   | 19ms                
+SassCompiler                                  | 15ms                
+
+Slowest Trees (cumulative)                    | Total (avg)         
+----------------------------------------------+---------------------
+CoffeeScriptFilter (2)                        | 56ms (28 ms)        
+Babel (11)                                    | 51ms (4 ms)         
+ConcatWithMaps: Concat: App (1)               | 19ms                
+TemplateCompiler (4)                          | 15ms (3 ms)         
+SassCompiler (1)                              | 15ms                
+
