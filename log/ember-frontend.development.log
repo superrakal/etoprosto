@@ -21948,4 +21948,81 @@ undefined
 version: 1.13.15
 Could not find watchman, falling back to NodeWatcher for file system events.
 Visit http://www.ember-cli.com/user-guide/#watchman for more info.
-Building
+BuildingDEPRECATION: Node v0.10.25 is no longer supported by Ember CLI. Please update to a more recent version of Node
+undefined
+version: 1.13.15
+Could not find watchman, falling back to NodeWatcher for file system events.
+Visit http://www.ember-cli.com/user-guide/#watchman for more info.
+BuildingDEPRECATION: Node v0.10.25 is no longer supported by Ember CLI. Please update to a more recent version of Node
+undefined
+version: 1.13.15
+Could not find watchman, falling back to NodeWatcher for file system events.
+Visit http://www.ember-cli.com/user-guide/#watchman for more info.
+BuildingDEPRECATION: Node v0.10.25 is no longer supported by Ember CLI. Please update to a more recent version of Node
+undefined
+version: 1.13.15
+Could not find watchman, falling back to NodeWatcher for file system events.
+Visit http://www.ember-cli.com/user-guide/#watchman for more info.
+BuildingDEPRECATION: Node v0.10.25 is no longer supported by Ember CLI. Please update to a more recent version of Node
+undefined
+version: 1.13.15
+Could not find watchman, falling back to NodeWatcher for file system events.
+Visit http://www.ember-cli.com/user-guide/#watchman for more info.
+BuildingDEPRECATION: Node v0.10.25 is no longer supported by Ember CLI. Please update to a more recent version of Node
+undefined
+version: 1.13.15
+Could not find watchman, falling back to NodeWatcher for file system events.
+Visit http://www.ember-cli.com/user-guide/#watchman for more info.
+BuildingDEPRECATION: Node v0.10.25 is no longer supported by Ember CLI. Please update to a more recent version of Node
+undefined
+version: 1.13.15
+Could not find watchman, falling back to NodeWatcher for file system events.
+Visit http://www.ember-cli.com/user-guide/#watchman for more info.
+BuildingBuilding.Building..Building...BuildingBuilding.Building..Building...BuildingBuilding.Building..Building...
+
+Build successful - 5920ms.
+
+Slowest Trees                                 | Total               
+----------------------------------------------+---------------------
+ConcatWithMaps: Concat: Vendor                | 1653ms              
+Babel                                         | 1242ms              
+Babel                                         | 1002ms              
+Babel                                         | 391ms               
+Babel                                         | 340ms               
+
+Slowest Trees (cumulative)                    | Total (avg)         
+----------------------------------------------+---------------------
+Babel (11)                                    | 3391ms (308 ms)     
+ConcatWithMaps: Concat: Vendor (1)            | 1653ms              
+
+DEPRECATION: Node v0.10.25 is no longer supported by Ember CLI. Please update to a more recent version of Node
+undefined
+version: 1.13.15
+Could not find watchman, falling back to NodeWatcher for file system events.
+Visit http://www.ember-cli.com/user-guide/#watchman for more info.
+BuildingBuilding.Building..Building...DEPRECATION: Node v0.10.25 is no longer supported by Ember CLI. Please update to a more recent version of Node
+undefined
+version: 1.13.15
+Could not find watchman, falling back to NodeWatcher for file system events.
+Visit http://www.ember-cli.com/user-guide/#watchman for more info.
+BuildingBuilding.Building..Building...DEPRECATION: Node v0.10.25 is no longer supported by Ember CLI. Please update to a more recent version of Node
+undefined
+version: 1.13.15
+Could not find watchman, falling back to NodeWatcher for file system events.
+Visit http://www.ember-cli.com/user-guide/#watchman for more info.
+BuildingBuilding.Building..Building...Building...
+
+Build successful - 2649ms.
+
+Slowest Trees                                 | Total               
+----------------------------------------------+---------------------
+ConcatWithMaps: Concat: Vendor                | 1624ms              
+CoffeeScriptFilter                            | 189ms               
+
+Slowest Trees (cumulative)                    | Total (avg)         
+----------------------------------------------+---------------------
+ConcatWithMaps: Concat: Vendor (1)            | 1624ms              
+CoffeeScriptFilter (2)                        | 229ms (114 ms)      
+TemplateCompiler (4)                          | 215ms (53 ms)       
+Babel (11)                                    | 161ms (14 ms)       
+
