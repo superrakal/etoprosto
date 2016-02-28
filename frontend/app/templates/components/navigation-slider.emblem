@@ -1,5 +1,11 @@
 .ui.inverted.vertical.masthead.center.aligned.segment
   .top-menu
+    .site-logo
+      .logo-wrapper
+        span.hashtag #
+        span.this это
+        .logo
+        span.simple просто
     .ui.container
       .ui.large.secondary.inverted.pointing.menu
         a.toc.item

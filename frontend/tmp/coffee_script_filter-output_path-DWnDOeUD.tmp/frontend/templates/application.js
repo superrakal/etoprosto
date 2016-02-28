@@ -1,1 +1,0 @@
-/home/egor/RubymineProjects/projectx/frontend/tmp/template_compiler-tmp_dest_dir-3S7kmblJ.tmp/frontend/templates/application.js

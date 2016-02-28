@@ -1,1 +1,0 @@
-/home/egor/RubymineProjects/projectx/frontend/app/authorizers/devise.js

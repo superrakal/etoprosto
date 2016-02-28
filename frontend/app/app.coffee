@@ -10,6 +10,11 @@ App = Ember.Application.extend
   podModulePrefix: config.podModulePrefix,
   Resolver: Resolver
 
+Ember.Route.reopen
+  activate: ->
+    @_super()
+    window.scrollTo(0, 0)
+
 loadInitializers(App, config.modulePrefix)
 
 $ ->

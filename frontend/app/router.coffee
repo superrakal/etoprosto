@@ -8,6 +8,8 @@ Router.map ()->
   @route 'root', path: '/'
   @route 'sign-up'
   @route 'cabinet', path: '/cabinet/:id'
+  @route 'new-event', path: '/events/new'
+  @route 'event', path: '/event/:id'
   @route 'events'
   @route 'contacts'
 

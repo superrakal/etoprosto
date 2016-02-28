@@ -20,5 +20,9 @@ ui-modal class="small eventsModal" name="events-modal"
                 = event.formattedTime
             .short_description
               = event.short_description
+            .link
+              = link-to 'event' event.id
+                button.ui.button{action "closeEventsModal"}
+                  |Перейти к событию
 
 

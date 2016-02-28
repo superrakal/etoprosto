@@ -1,1 +1,0 @@
-/home/egor/RubymineProjects/projectx/frontend/tmp/reexporter-output_path-7ifetXte.tmp/reexports/ember-breadcrumbs.js

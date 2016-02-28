@@ -1,1 +1,0 @@
-/home/egor/RubymineProjects/projectx/frontend/tmp/config_replace-output_path-pHWikCLT.tmp/test-support-suffix.js

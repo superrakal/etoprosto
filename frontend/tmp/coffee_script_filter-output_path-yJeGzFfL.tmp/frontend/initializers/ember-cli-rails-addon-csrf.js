@@ -1,1 +1,0 @@
-/home/egor/RubymineProjects/projectx/frontend/node_modules/ember-cli-rails-addon/app/initializers/ember-cli-rails-addon-csrf.js

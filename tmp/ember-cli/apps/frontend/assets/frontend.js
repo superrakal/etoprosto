@@ -24,6 +24,13 @@ define('frontend/app', ['exports', 'ember', 'ember/resolver', 'ember/load-initia
     Resolver: _emberResolver['default']
   });
 
+  _ember['default'].Route.reopen({
+    activate: function activate() {
+      this._super();
+      return window.scrollTo(0, 0);
+    }
+  });
+
   (0, _emberLoadInitializers['default'])(App, _frontendConfigEnvironment['default'].modulePrefix);
 
   $(function () {
@@ -47,6 +54,26 @@ define('frontend/authorizers/devise', ['exports', 'ember-simple-auth/authorizers
 });
 define("frontend/components/bread-crumbs", ["exports", "ember", "ember-breadcrumbs/components/bread-crumbs"], function (exports, _ember, _emberBreadcrumbsComponentsBreadCrumbs) {
   exports["default"] = _emberBreadcrumbsComponentsBreadCrumbs["default"];
+});
+define('frontend/components/datetimepicker-component', ['exports', 'ember'], function (exports, _ember) {
+  var DatetimepickerComponentComponent;
+
+  DatetimepickerComponentComponent = _ember['default'].Component.extend({
+    didInsertElement: function didInsertElement() {
+      return this.$('input').datetimepicker({
+        lang: 'ru',
+        dayOfWeekStart: 1,
+        format: 'd.m.Y H:i',
+        onChangeDateTime: (function (_this) {
+          return function (data) {
+            return _this.set('value', data);
+          };
+        })(this)
+      });
+    }
+  });
+
+  exports['default'] = DatetimepickerComponentComponent;
 });
 define('frontend/components/day-component', ['exports', 'ember'], function (exports, _ember) {
   var DayComponentComponent;
@@ -84,6 +111,11 @@ define('frontend/components/day-component', ['exports', 'ember'], function (expo
         return this.get('events_count');
       }
     }).property('events_count'),
+    isToday: (function () {
+      var date;
+      date = moment([this.get('selectedYear'), this.get('selectedMonth'), this.get('dateNumber')]);
+      return moment().isSame(date, 'day');
+    }).property('dateNumber', 'selectedYear', 'selectedMonth'),
     isActualDay: (function () {
       var endDate, startDate;
       startDate = moment([this.get('selectedYear'), this.get('selectedMonth'), this.get('dateNumber')]);
@@ -127,6 +159,57 @@ define('frontend/components/head-tags', ['exports', 'ember-cli-meta-tags/compone
       return _emberCliMetaTagsComponentsHeadTags['default'];
     }
   });
+});
+define('frontend/components/map-component', ['exports', 'ember'], function (exports, _ember) {
+  var MapComponentComponent;
+
+  MapComponentComponent = _ember['default'].Component.extend({
+    didInsertElement: function didInsertElement() {
+      var latlng, map, marker;
+      map = void 0;
+      marker = this.get('marker');
+      latlng = JSON.parse(marker);
+      return DG.then((function (_this) {
+        return function () {
+          map = DG.map('map', {
+            center: [latlng.lat, latlng.lng],
+            zoom: 13
+          });
+          return DG.marker([latlng.lat, latlng.lng]).addTo(map).bindPopup(_this.get('baloonContent'));
+        };
+      })(this));
+    }
+  });
+
+  exports['default'] = MapComponentComponent;
+});
+define('frontend/components/marker-select', ['exports', 'ember'], function (exports, _ember) {
+  var MarkerSelectComponent;
+
+  MarkerSelectComponent = _ember['default'].Component.extend({
+    didInsertElement: function didInsertElement() {
+      var map;
+      map = void 0;
+      return DG.then((function (_this) {
+        return function () {
+          map = DG.map('map', {
+            center: [54.98, 82.89],
+            zoom: 13
+          });
+          return map.on('click', function (e) {
+            if (_this.get('marker')) {
+              _this.get('marker').remove();
+            }
+            _this.set('marker', DG.marker([e.latlng.lat, e.latlng.lng]).addTo(map));
+            _this.get('marker').bindPopup(_this.get('baloonContent'));
+            return _this.set('value', JSON.stringify(e.latlng));
+          });
+        };
+      })(this));
+    }
+  });
+
+  exports['default'] = MarkerSelectComponent;
 });
 define('frontend/components/navbar-component', ['exports', 'ember'], function (exports, _ember) {
   var NavbarComponentComponent;
@@ -309,6 +392,13 @@ define('frontend/controllers/contacts', ['exports', 'ember'], function (exports,
 
   exports['default'] = ContactsController;
 });
+define('frontend/controllers/event', ['exports', 'ember'], function (exports, _ember) {
+  var EventController;
+
+  EventController = _ember['default'].Controller.extend();
+
+  exports['default'] = EventController;
+});
 define('frontend/controllers/events', ['exports', 'ember'], function (exports, _ember) {
   var EventsController;
 
@@ -382,11 +472,35 @@ define('frontend/controllers/events', ['exports', 'ember'], function (exports, _
         this.set('modalEvents', events);
         this.set('modalDay', day.format('DD.MM.YYYY'));
         return $('.ui.modal.eventsModal').modal('show');
+      },
+      closeEventsModal: function closeEventsModal() {
+        return $('.ui.modal.eventsModal').modal('hide');
       }
     }
   });
 
   exports['default'] = EventsController;
+});
+define('frontend/controllers/new-event', ['exports', 'ember'], function (exports, _ember) {
+  var NewEventController;
+
+  NewEventController = _ember['default'].Controller.extend({
+    flashMessages: _ember['default'].inject.service(),
+    actions: {
+      create: function create() {
+        return this.get('model').save().then((function (_this) {
+          return function () {
+            _this.get('flashMessages').success('Ваше событие успешно создано. Спасибо, что Вы с нами!', {
+              timeout: 3000
+            });
+            return _this.transitionToRoute('root');
+          };
+        })(this));
+      }
+    }
+  });
+
+  exports['default'] = NewEventController;
 });
 define('frontend/controllers/sign-up', ['exports', 'ember'], function (exports, _ember) {
   var SignUpController;
@@ -594,9 +708,17 @@ define('frontend/models/event', ['exports', 'ember-data'], function (exports, _e
     short_description: _emberData['default'].attr('string'),
     description: _emberData['default'].attr('string'),
     date: _emberData['default'].attr('date'),
+    marker: _emberData['default'].attr('string'),
+    address: _emberData['default'].attr('string'),
     formattedTime: (function () {
       return moment(this.get('date')).format('HH:mm');
-    }).property('date')
+    }).property('date'),
+    formattedDate: (function () {
+      return moment(this.get('date')).format('DD.MM.YYYY');
+    }).property('date'),
+    baloonContent: (function () {
+      return '<br><p>' + this.get('title') + '</p><br><p>Дата:&nbsp;' + moment(this.get('date')).format('DD.MM.YYYY') + '</p><br><p>Время:&nbsp;' + this.get('formattedTime') + '</p>';
+    }).property('title', 'date')
   });
 
   exports['default'] = Event;
@@ -651,6 +773,12 @@ define('frontend/router', ['exports', 'ember', 'frontend/config/environment'], f
     this.route('cabinet', {
       path: '/cabinet/:id'
     });
+    this.route('new-event', {
+      path: '/events/new'
+    });
+    this.route('event', {
+      path: '/event/:id'
+    });
     this.route('events');
     return this.route('contacts');
   });
@@ -686,6 +814,23 @@ define('frontend/routes/contacts', ['exports', 'ember'], function (exports, _emb
 
   exports['default'] = ContactsRoute;
 });
+define('frontend/routes/event', ['exports', 'ember'], function (exports, _ember) {
+  var EventRoute;
+
+  EventRoute = _ember['default'].Route.extend({
+    beforeModel: function beforeModel() {
+      return this.controllerFor('application').set('slider_partial_path', "event");
+    },
+    model: function model(params) {
+      return this.store.find('event', params.id);
+    },
+    setupController: function setupController(controller, model) {
+      return controller.set('model', model);
+    }
+  });
+
+  exports['default'] = EventRoute;
+});
 define('frontend/routes/events', ['exports', 'ember'], function (exports, _ember) {
   var EventsRoute;
 
@@ -704,6 +849,20 @@ define('frontend/routes/events', ['exports', 'ember'], function (exports, _ember
   });
 
   exports['default'] = EventsRoute;
+});
+define('frontend/routes/new-event', ['exports', 'ember'], function (exports, _ember) {
+  var NewEventRoute;
+
+  NewEventRoute = _ember['default'].Route.extend({
+    model: function model() {
+      return this.store.createRecord('event');
+    },
+    setupController: function setupController(controller, model) {
+      return controller.set('model', model);
+    }
+  });
+
+  exports['default'] = NewEventRoute;
 });
 define('frontend/routes/root', ['exports', 'ember'], function (exports, _ember) {
   var RootRoute;
@@ -798,6 +957,108 @@ define('frontend/session-stores/application', ['exports', 'ember-simple-auth/ses
 define("frontend/templates/application", ["exports"], function (exports) {
   exports["default"] = Ember.HTMLBars.template((function () {
     var child0 = (function () {
+      var child0 = (function () {
+        return {
+          meta: {
+            "revision": "Ember@2.0.3",
+            "loc": {
+              "source": null,
+              "start": {
+                "line": 1,
+                "column": 177
+              },
+              "end": {
+                "line": 1,
+                "column": 216
+              }
+            },
+            "moduleName": "frontend/templates/application.hbs"
+          },
+          arity: 0,
+          cachedFragment: null,
+          hasRendered: false,
+          buildFragment: function buildFragment(dom) {
+            var el0 = dom.createDocumentFragment();
+            var el1 = dom.createTextNode("Главная");
+            dom.appendChild(el0, el1);
+            return el0;
+          },
+          buildRenderNodes: function buildRenderNodes() {
+            return [];
+          },
+          statements: [],
+          locals: [],
+          templates: []
+        };
+      })();
+      var child1 = (function () {
+        return {
+          meta: {
+            "revision": "Ember@2.0.3",
+            "loc": {
+              "source": null,
+              "start": {
+                "line": 1,
+                "column": 228
+              },
+              "end": {
+                "line": 1,
+                "column": 269
+              }
+            },
+            "moduleName": "frontend/templates/application.hbs"
+          },
+          arity: 0,
+          cachedFragment: null,
+          hasRendered: false,
+          buildFragment: function buildFragment(dom) {
+            var el0 = dom.createDocumentFragment();
+            var el1 = dom.createTextNode("События");
+            dom.appendChild(el0, el1);
+            return el0;
+          },
+          buildRenderNodes: function buildRenderNodes() {
+            return [];
+          },
+          statements: [],
+          locals: [],
+          templates: []
+        };
+      })();
+      var child2 = (function () {
+        return {
+          meta: {
+            "revision": "Ember@2.0.3",
+            "loc": {
+              "source": null,
+              "start": {
+                "line": 1,
+                "column": 281
+              },
+              "end": {
+                "line": 1,
+                "column": 325
+              }
+            },
+            "moduleName": "frontend/templates/application.hbs"
+          },
+          arity: 0,
+          cachedFragment: null,
+          hasRendered: false,
+          buildFragment: function buildFragment(dom) {
+            var el0 = dom.createDocumentFragment();
+            var el1 = dom.createTextNode("Контакты");
+            dom.appendChild(el0, el1);
+            return el0;
+          },
+          buildRenderNodes: function buildRenderNodes() {
+            return [];
+          },
+          statements: [],
+          locals: [],
+          templates: []
+        };
+      })();
       return {
         meta: {
           "revision": "Ember@2.0.3",
@@ -809,7 +1070,7 @@ define("frontend/templates/application", ["exports"], function (exports) {
             },
             "end": {
               "line": 1,
-              "column": 347
+              "column": 337
             }
           },
           "moduleName": "frontend/templates/application.hbs"
@@ -819,44 +1080,26 @@ define("frontend/templates/application", ["exports"], function (exports) {
         hasRendered: false,
         buildFragment: function buildFragment(dom) {
           var el0 = dom.createDocumentFragment();
-          var el1 = dom.createElement("a");
-          dom.setAttribute(el1, "class", "active item");
-          var el2 = dom.createTextNode("Главная");
-          dom.appendChild(el1, el2);
+          var el1 = dom.createComment("");
           dom.appendChild(el0, el1);
-          var el1 = dom.createElement("a");
-          dom.setAttribute(el1, "class", "item");
-          var el2 = dom.createTextNode("Фонды");
-          dom.appendChild(el1, el2);
+          var el1 = dom.createComment("");
           dom.appendChild(el0, el1);
-          var el1 = dom.createElement("a");
-          dom.setAttribute(el1, "class", "item");
-          var el2 = dom.createTextNode("События");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("a");
-          dom.setAttribute(el1, "class", "item");
-          var el2 = dom.createTextNode("Контакты");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("a");
-          dom.setAttribute(el1, "class", "item");
-          var el2 = dom.createTextNode("Войти");
-          dom.appendChild(el1, el2);
-          dom.appendChild(el0, el1);
-          var el1 = dom.createElement("a");
-          dom.setAttribute(el1, "class", "item");
-          var el2 = dom.createTextNode("Регистрация");
-          dom.appendChild(el1, el2);
+          var el1 = dom.createComment("");
           dom.appendChild(el0, el1);
           return el0;
         },
-        buildRenderNodes: function buildRenderNodes() {
-          return [];
+        buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+          var morphs = new Array(3);
+          morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
+          morphs[1] = dom.createMorphAt(fragment, 1, 1, contextualElement);
+          morphs[2] = dom.createMorphAt(fragment, 2, 2, contextualElement);
+          dom.insertBoundary(fragment, 0);
+          dom.insertBoundary(fragment, null);
+          return morphs;
         },
-        statements: [],
+        statements: [["block", "link-to", ["root"], ["class", "item"], 0, null, ["loc", [null, [1, 177], [1, 228]]]], ["block", "link-to", ["events"], ["class", "item"], 1, null, ["loc", [null, [1, 228], [1, 281]]]], ["block", "link-to", ["contacts"], ["class", "item"], 2, null, ["loc", [null, [1, 281], [1, 337]]]]],
         locals: [],
-        templates: []
+        templates: [child0, child1, child2]
       };
     })();
     var child1 = (function () {
@@ -867,11 +1110,11 @@ define("frontend/templates/application", ["exports"], function (exports) {
             "source": null,
             "start": {
               "line": 1,
-              "column": 567
+              "column": 557
             },
             "end": {
               "line": 1,
-              "column": 688
+              "column": 678
             }
           },
           "moduleName": "frontend/templates/application.hbs"
@@ -896,7 +1139,7 @@ define("frontend/templates/application", ["exports"], function (exports) {
           morphs[0] = dom.createMorphAt(dom.childAt(fragment, [0, 0]), 0, 0);
           return morphs;
         },
-        statements: [["content", "flash.message", ["loc", [null, [1, 659], [1, 676]]]]],
+        statements: [["content", "flash.message", ["loc", [null, [1, 649], [1, 666]]]]],
         locals: ["flash"],
         templates: []
       };
@@ -912,7 +1155,7 @@ define("frontend/templates/application", ["exports"], function (exports) {
           },
           "end": {
             "line": 1,
-            "column": 2033
+            "column": 1125
           }
         },
         "moduleName": "frontend/templates/application.hbs"
@@ -944,84 +1187,22 @@ define("frontend/templates/application", ["exports"], function (exports) {
         var el4 = dom.createElement("div");
         dom.setAttribute(el4, "class", "ui stackable inverted divided equal height stackable grid");
         var el5 = dom.createElement("div");
-        dom.setAttribute(el5, "class", "three wide column");
-        var el6 = dom.createElement("h4");
-        dom.setAttribute(el6, "class", "ui inverted header");
-        var el7 = dom.createTextNode("About");
-        dom.appendChild(el6, el7);
-        dom.appendChild(el5, el6);
-        var el6 = dom.createElement("div");
-        dom.setAttribute(el6, "class", "ui inverted link list");
-        var el7 = dom.createElement("a");
-        dom.setAttribute(el7, "href", "http://semantic-ui.com/examples/homepage.html#");
-        dom.setAttribute(el7, "class", "item");
-        var el8 = dom.createTextNode(" Sitemap");
-        dom.appendChild(el7, el8);
-        dom.appendChild(el6, el7);
-        var el7 = dom.createElement("a");
-        dom.setAttribute(el7, "href", "http://semantic-ui.com/examples/homepage.html#");
-        dom.setAttribute(el7, "class", "item");
-        var el8 = dom.createTextNode(" Contact Us");
-        dom.appendChild(el7, el8);
-        dom.appendChild(el6, el7);
-        var el7 = dom.createElement("a");
-        dom.setAttribute(el7, "href", "http://semantic-ui.com/examples/homepage.html#");
-        dom.setAttribute(el7, "class", "item");
-        var el8 = dom.createTextNode(" Religious Ceremonies");
-        dom.appendChild(el7, el8);
-        dom.appendChild(el6, el7);
-        var el7 = dom.createElement("a");
-        dom.setAttribute(el7, "href", "http://semantic-ui.com/examples/homepage.html#");
-        dom.setAttribute(el7, "class", "item");
-        var el8 = dom.createTextNode(" Gazebo Plans");
-        dom.appendChild(el7, el8);
-        dom.appendChild(el6, el7);
-        dom.appendChild(el5, el6);
-        dom.appendChild(el4, el5);
-        var el5 = dom.createElement("div");
-        dom.setAttribute(el5, "class", "three wide column");
-        var el6 = dom.createElement("h4");
-        dom.setAttribute(el6, "class", "ui inverted header");
-        var el7 = dom.createTextNode("Services");
-        dom.appendChild(el6, el7);
-        dom.appendChild(el5, el6);
-        var el6 = dom.createElement("div");
-        dom.setAttribute(el6, "class", "ui inverted link list");
-        var el7 = dom.createElement("a");
-        dom.setAttribute(el7, "href", "http://semantic-ui.com/examples/homepage.html#");
-        dom.setAttribute(el7, "class", "item");
-        var el8 = dom.createTextNode(" Banana Pre-Order");
-        dom.appendChild(el7, el8);
-        dom.appendChild(el6, el7);
-        var el7 = dom.createElement("a");
-        dom.setAttribute(el7, "href", "http://semantic-ui.com/examples/homepage.html#");
-        dom.setAttribute(el7, "class", "item");
-        var el8 = dom.createTextNode(" DNA FAQ");
-        dom.appendChild(el7, el8);
-        dom.appendChild(el6, el7);
-        var el7 = dom.createElement("a");
-        dom.setAttribute(el7, "href", "http://semantic-ui.com/examples/homepage.html#");
-        dom.setAttribute(el7, "class", "item");
-        var el8 = dom.createTextNode(" How To Access");
-        dom.appendChild(el7, el8);
-        dom.appendChild(el6, el7);
-        var el7 = dom.createElement("a");
-        dom.setAttribute(el7, "href", "http://semantic-ui.com/examples/homepage.html#");
-        dom.setAttribute(el7, "class", "item");
-        var el8 = dom.createTextNode(" Favorite X-Men");
-        dom.appendChild(el7, el8);
-        dom.appendChild(el6, el7);
-        dom.appendChild(el5, el6);
-        dom.appendChild(el4, el5);
-        var el5 = dom.createElement("div");
         dom.setAttribute(el5, "class", "seven wide column");
         var el6 = dom.createElement("h4");
         dom.setAttribute(el6, "class", "ui inverted header");
-        var el7 = dom.createTextNode("Footer Header");
+        var el7 = dom.createTextNode("Команда создателей");
         dom.appendChild(el6, el7);
         dom.appendChild(el5, el6);
         var el6 = dom.createElement("p");
-        var el7 = dom.createTextNode("Extra space for a call to action inside the footer that could help re-engage users.");
+        var el7 = dom.createTextNode("Ангелина Иванова - Teamleader");
+        dom.appendChild(el6, el7);
+        dom.appendChild(el5, el6);
+        var el6 = dom.createElement("p");
+        var el7 = dom.createTextNode("Егор Топольняк - Разработчик (FrontEnd + BackEnd)");
+        dom.appendChild(el6, el7);
+        dom.appendChild(el5, el6);
+        var el6 = dom.createElement("p");
+        var el7 = dom.createTextNode("Сергей Беленицкий - Дизайнер");
         dom.appendChild(el6, el7);
         dom.appendChild(el5, el6);
         dom.appendChild(el4, el5);
@@ -1046,7 +1227,7 @@ define("frontend/templates/application", ["exports"], function (exports) {
         dom.insertBoundary(fragment, null);
         return morphs;
       },
-      statements: [["inline", "navbar-component", [], ["openLoginModal", "openLoginModal", "authenticate", "authenticate", "invalidateSession", "invalidateSession"], ["loc", [null, [1, 0], [1, 118]]]], ["block", "ui-sidebar", [], ["class", "inverted vertical menu sidebar left"], 0, null, ["loc", [null, [1, 118], [1, 362]]]], ["inline", "navigation-slider", [], ["slider_partial_path", ["subexpr", "@mut", [["get", "slider_partial_path", ["loc", [null, [1, 422], [1, 441]]]]], [], []], "openLoginModal", "openLoginModal", "authenticate", "authenticate", "invalidateSession", "invalidateSession"], ["loc", [null, [1, 382], [1, 541]]]], ["block", "each", [["get", "flashMessages.queue", ["loc", [null, [1, 575], [1, 594]]]]], [], 1, null, ["loc", [null, [1, 567], [1, 697]]]], ["content", "outlet", ["loc", [null, [1, 703], [1, 713]]]], ["inline", "partial", ["partials/login-modal"], [], ["loc", [null, [1, 1999], [1, 2033]]]]],
+      statements: [["inline", "navbar-component", [], ["openLoginModal", "openLoginModal", "authenticate", "authenticate", "invalidateSession", "invalidateSession"], ["loc", [null, [1, 0], [1, 118]]]], ["block", "ui-sidebar", [], ["class", "inverted vertical menu sidebar left"], 0, null, ["loc", [null, [1, 118], [1, 352]]]], ["inline", "navigation-slider", [], ["slider_partial_path", ["subexpr", "@mut", [["get", "slider_partial_path", ["loc", [null, [1, 412], [1, 431]]]]], [], []], "openLoginModal", "openLoginModal", "authenticate", "authenticate", "invalidateSession", "invalidateSession"], ["loc", [null, [1, 372], [1, 531]]]], ["block", "each", [["get", "flashMessages.queue", ["loc", [null, [1, 565], [1, 584]]]]], [], 1, null, ["loc", [null, [1, 557], [1, 687]]]], ["content", "outlet", ["loc", [null, [1, 693], [1, 703]]]], ["inline", "partial", ["partials/login-modal"], [], ["loc", [null, [1, 1091], [1, 1125]]]]],
       locals: [],
       templates: [child0, child1]
     };
@@ -1421,6 +1602,46 @@ define("frontend/templates/components/bread-crumbs", ["exports"], function (expo
     };
   })());
 });
+define("frontend/templates/components/datetimepicker-component", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template((function () {
+    return {
+      meta: {
+        "revision": "Ember@2.0.3",
+        "loc": {
+          "source": null,
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 1,
+            "column": 39
+          }
+        },
+        "moduleName": "frontend/templates/components/datetimepicker-component.hbs"
+      },
+      arity: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      buildFragment: function buildFragment(dom) {
+        var el0 = dom.createDocumentFragment();
+        var el1 = dom.createComment("");
+        dom.appendChild(el0, el1);
+        return el0;
+      },
+      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+        var morphs = new Array(1);
+        morphs[0] = dom.createMorphAt(fragment, 0, 0, contextualElement);
+        dom.insertBoundary(fragment, 0);
+        dom.insertBoundary(fragment, null);
+        return morphs;
+      },
+      statements: [["inline", "input", [], ["type", "text", "required", ["subexpr", "@mut", [["get", "required", ["loc", [null, [1, 29], [1, 37]]]]], [], []]], ["loc", [null, [1, 0], [1, 39]]]]],
+      locals: [],
+      templates: []
+    };
+  })());
+});
 define("frontend/templates/components/day-component", ["exports"], function (exports) {
   exports["default"] = Ember.HTMLBars.template((function () {
     var child0 = (function () {
@@ -1431,11 +1652,11 @@ define("frontend/templates/components/day-component", ["exports"], function (exp
             "source": null,
             "start": {
               "line": 1,
-              "column": 76
+              "column": 113
             },
             "end": {
               "line": 1,
-              "column": 227
+              "column": 264
             }
           },
           "moduleName": "frontend/templates/components/day-component.hbs"
@@ -1462,7 +1683,7 @@ define("frontend/templates/components/day-component", ["exports"], function (exp
           morphs[1] = dom.createMorphAt(dom.childAt(fragment, [1]), 0, 0);
           return morphs;
         },
-        statements: [["element", "action", ["openEventModal"], [], ["loc", [null, [1, 99], [1, 126]]]], ["content", "events_count_string", ["loc", [null, [1, 197], [1, 220]]]]],
+        statements: [["element", "action", ["openEventModal"], [], ["loc", [null, [1, 136], [1, 163]]]], ["content", "events_count_string", ["loc", [null, [1, 234], [1, 257]]]]],
         locals: [],
         templates: []
       };
@@ -1478,7 +1699,7 @@ define("frontend/templates/components/day-component", ["exports"], function (exp
           },
           "end": {
             "line": 1,
-            "column": 335
+            "column": 395
           }
         },
         "moduleName": "frontend/templates/components/day-component.hbs"
@@ -1511,9 +1732,86 @@ define("frontend/templates/components/day-component", ["exports"], function (exp
         morphs[3] = dom.createMorphAt(element2, 0, 0);
         return morphs;
       },
-      statements: [["attribute", "class", ["concat", ["day ", ["subexpr", "if", [["get", "isHaveEvents", ["loc", [null, [1, 21], [1, 33]]]], "active"], [], ["loc", [null, [1, 16], [1, 44]]]]]]], ["block", "if", [["get", "isHaveEvents", ["loc", [null, [1, 82], [1, 94]]]]], [], 0, null, ["loc", [null, [1, 76], [1, 234]]]], ["attribute", "class", ["concat", ["number text-center ", ["subexpr", "if", [["get", "isActualDay", ["loc", [null, [1, 276], [1, 287]]]], "default", "muted"], [], ["loc", [null, [1, 271], [1, 307]]]]]]], ["content", "dateNumber", ["loc", [null, [1, 309], [1, 323]]]]],
+      statements: [["attribute", "class", ["concat", ["day ", ["subexpr", "if", [["get", "isHaveEvents", ["loc", [null, [1, 21], [1, 33]]]], "active"], [], ["loc", [null, [1, 16], [1, 44]]]], " ", ["subexpr", "if", [["get", "isActualDay", ["loc", [null, [1, 50], [1, 61]]]], "default", "muted"], [], ["loc", [null, [1, 45], [1, 81]]]]]]], ["block", "if", [["get", "isHaveEvents", ["loc", [null, [1, 119], [1, 131]]]]], [], 0, null, ["loc", [null, [1, 113], [1, 271]]]], ["attribute", "class", ["concat", ["number text-center ", ["subexpr", "if", [["get", "isActualDay", ["loc", [null, [1, 313], [1, 324]]]], "default", "muted"], [], ["loc", [null, [1, 308], [1, 344]]]], " ", ["subexpr", "if", [["get", "isToday", ["loc", [null, [1, 350], [1, 357]]]], "today"], [], ["loc", [null, [1, 345], [1, 367]]]]]]], ["content", "dateNumber", ["loc", [null, [1, 369], [1, 383]]]]],
       locals: [],
       templates: [child0]
+    };
+  })());
+});
+define("frontend/templates/components/map-component", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template((function () {
+    return {
+      meta: {
+        "revision": "Ember@2.0.3",
+        "loc": {
+          "source": null,
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 1,
+            "column": 20
+          }
+        },
+        "moduleName": "frontend/templates/components/map-component.hbs"
+      },
+      arity: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      buildFragment: function buildFragment(dom) {
+        var el0 = dom.createDocumentFragment();
+        var el1 = dom.createElement("div");
+        dom.setAttribute(el1, "id", "map");
+        dom.appendChild(el0, el1);
+        return el0;
+      },
+      buildRenderNodes: function buildRenderNodes() {
+        return [];
+      },
+      statements: [],
+      locals: [],
+      templates: []
+    };
+  })());
+});
+define("frontend/templates/components/marker-select", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template((function () {
+    return {
+      meta: {
+        "revision": "Ember@2.0.3",
+        "loc": {
+          "source": null,
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 1,
+            "column": 53
+          }
+        },
+        "moduleName": "frontend/templates/components/marker-select.hbs"
+      },
+      arity: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      buildFragment: function buildFragment(dom) {
+        var el0 = dom.createDocumentFragment();
+        var el1 = dom.createElement("div");
+        dom.setAttribute(el1, "class", "marker-select");
+        var el2 = dom.createElement("div");
+        dom.setAttribute(el2, "id", "map");
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        return el0;
+      },
+      buildRenderNodes: function buildRenderNodes() {
+        return [];
+      },
+      statements: [],
+      locals: [],
+      templates: []
     };
   })());
 });
@@ -1926,11 +2224,11 @@ define("frontend/templates/components/navigation-slider", ["exports"], function 
             "source": null,
             "start": {
               "line": 1,
-              "column": 221
+              "column": 399
             },
             "end": {
               "line": 1,
-              "column": 304
+              "column": 482
             }
           },
           "moduleName": "frontend/templates/components/navigation-slider.hbs"
@@ -1952,7 +2250,7 @@ define("frontend/templates/components/navigation-slider", ["exports"], function 
           morphs[0] = dom.createElementMorph(element3);
           return morphs;
         },
-        statements: [["element", "action", ["changePath", "root"], [], ["loc", [null, [1, 259], [1, 289]]]]],
+        statements: [["element", "action", ["changePath", "root"], [], ["loc", [null, [1, 437], [1, 467]]]]],
         locals: [],
         templates: []
       };
@@ -1965,11 +2263,11 @@ define("frontend/templates/components/navigation-slider", ["exports"], function 
             "source": null,
             "start": {
               "line": 1,
-              "column": 341
+              "column": 519
             },
             "end": {
               "line": 1,
-              "column": 428
+              "column": 606
             }
           },
           "moduleName": "frontend/templates/components/navigation-slider.hbs"
@@ -1991,7 +2289,7 @@ define("frontend/templates/components/navigation-slider", ["exports"], function 
           morphs[0] = dom.createElementMorph(element2);
           return morphs;
         },
-        statements: [["element", "action", ["changePath", "events"], [], ["loc", [null, [1, 381], [1, 413]]]]],
+        statements: [["element", "action", ["changePath", "events"], [], ["loc", [null, [1, 559], [1, 591]]]]],
         locals: [],
         templates: []
       };
@@ -2004,11 +2302,11 @@ define("frontend/templates/components/navigation-slider", ["exports"], function 
             "source": null,
             "start": {
               "line": 1,
-              "column": 440
+              "column": 618
             },
             "end": {
               "line": 1,
-              "column": 532
+              "column": 710
             }
           },
           "moduleName": "frontend/templates/components/navigation-slider.hbs"
@@ -2030,7 +2328,7 @@ define("frontend/templates/components/navigation-slider", ["exports"], function 
           morphs[0] = dom.createElementMorph(element1);
           return morphs;
         },
-        statements: [["element", "action", ["changePath", "contacts"], [], ["loc", [null, [1, 482], [1, 516]]]]],
+        statements: [["element", "action", ["changePath", "contacts"], [], ["loc", [null, [1, 660], [1, 694]]]]],
         locals: [],
         templates: []
       };
@@ -2043,11 +2341,11 @@ define("frontend/templates/components/navigation-slider", ["exports"], function 
             "source": null,
             "start": {
               "line": 1,
-              "column": 568
+              "column": 746
             },
             "end": {
               "line": 1,
-              "column": 679
+              "column": 857
             }
           },
           "moduleName": "frontend/templates/components/navigation-slider.hbs"
@@ -2068,7 +2366,7 @@ define("frontend/templates/components/navigation-slider", ["exports"], function 
           dom.insertBoundary(fragment, null);
           return morphs;
         },
-        statements: [["inline", "navbar-profile", [], ["invalidateSession", "invalidateSession", "changePath", "changePath"], ["loc", [null, [1, 599], [1, 679]]]]],
+        statements: [["inline", "navbar-profile", [], ["invalidateSession", "invalidateSession", "changePath", "changePath"], ["loc", [null, [1, 777], [1, 857]]]]],
         locals: [],
         templates: []
       };
@@ -2082,11 +2380,11 @@ define("frontend/templates/components/navigation-slider", ["exports"], function 
               "source": null,
               "start": {
                 "line": 1,
-                "column": 764
+                "column": 942
               },
               "end": {
                 "line": 1,
-                "column": 824
+                "column": 1002
               }
             },
             "moduleName": "frontend/templates/components/navigation-slider.hbs"
@@ -2115,11 +2413,11 @@ define("frontend/templates/components/navigation-slider", ["exports"], function 
             "source": null,
             "start": {
               "line": 1,
-              "column": 679
+              "column": 857
             },
             "end": {
               "line": 1,
-              "column": 836
+              "column": 1014
             }
           },
           "moduleName": "frontend/templates/components/navigation-slider.hbs"
@@ -2146,7 +2444,7 @@ define("frontend/templates/components/navigation-slider", ["exports"], function 
           dom.insertBoundary(fragment, null);
           return morphs;
         },
-        statements: [["element", "action", ["openLoginModal"], [], ["loc", [null, [1, 695], [1, 722]]]], ["block", "link-to", ["sign-up"], ["class", "ui inverted button"], 0, null, ["loc", [null, [1, 764], [1, 836]]]]],
+        statements: [["element", "action", ["openLoginModal"], [], ["loc", [null, [1, 873], [1, 900]]]], ["block", "link-to", ["sign-up"], ["class", "ui inverted button"], 0, null, ["loc", [null, [1, 942], [1, 1014]]]]],
         locals: [],
         templates: [child0]
       };
@@ -2162,7 +2460,7 @@ define("frontend/templates/components/navigation-slider", ["exports"], function 
           },
           "end": {
             "line": 1,
-            "column": 924
+            "column": 1102
           }
         },
         "moduleName": "frontend/templates/components/navigation-slider.hbs"
@@ -2176,6 +2474,30 @@ define("frontend/templates/components/navigation-slider", ["exports"], function 
         dom.setAttribute(el1, "class", "ui inverted vertical masthead center aligned segment");
         var el2 = dom.createElement("div");
         dom.setAttribute(el2, "class", "top-menu");
+        var el3 = dom.createElement("div");
+        dom.setAttribute(el3, "class", "site-logo");
+        var el4 = dom.createElement("div");
+        dom.setAttribute(el4, "class", "logo-wrapper");
+        var el5 = dom.createElement("span");
+        dom.setAttribute(el5, "class", "hashtag");
+        var el6 = dom.createTextNode("#");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        var el5 = dom.createElement("span");
+        dom.setAttribute(el5, "class", "this");
+        var el6 = dom.createTextNode("это");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        var el5 = dom.createElement("div");
+        dom.setAttribute(el5, "class", "logo");
+        dom.appendChild(el4, el5);
+        var el5 = dom.createElement("span");
+        dom.setAttribute(el5, "class", "simple");
+        var el6 = dom.createTextNode("просто");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
         var el3 = dom.createElement("div");
         dom.setAttribute(el3, "class", "ui container");
         var el4 = dom.createElement("div");
@@ -2215,7 +2537,7 @@ define("frontend/templates/components/navigation-slider", ["exports"], function 
       },
       buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
         var element4 = dom.childAt(fragment, [0]);
-        var element5 = dom.childAt(element4, [0, 0, 0]);
+        var element5 = dom.childAt(element4, [0, 1, 0]);
         var morphs = new Array(5);
         morphs[0] = dom.createMorphAt(element5, 1, 1);
         morphs[1] = dom.createMorphAt(element5, 3, 3);
@@ -2224,7 +2546,7 @@ define("frontend/templates/components/navigation-slider", ["exports"], function 
         morphs[4] = dom.createMorphAt(dom.childAt(element4, [1]), 0, 0);
         return morphs;
       },
-      statements: [["block", "link-to", ["root"], ["class", "item"], 0, null, ["loc", [null, [1, 221], [1, 316]]]], ["block", "link-to", ["events"], ["class", "item"], 1, null, ["loc", [null, [1, 341], [1, 440]]]], ["block", "link-to", ["contacts"], ["class", "item"], 2, null, ["loc", [null, [1, 440], [1, 544]]]], ["block", "if", [["get", "session.isAuthenticated", ["loc", [null, [1, 574], [1, 597]]]]], [], 3, 4, ["loc", [null, [1, 568], [1, 843]]]], ["inline", "partial", [["get", "partial_path", ["loc", [null, [1, 898], [1, 910]]]]], [], ["loc", [null, [1, 888], [1, 912]]]]],
+      statements: [["block", "link-to", ["root"], ["class", "item"], 0, null, ["loc", [null, [1, 399], [1, 494]]]], ["block", "link-to", ["events"], ["class", "item"], 1, null, ["loc", [null, [1, 519], [1, 618]]]], ["block", "link-to", ["contacts"], ["class", "item"], 2, null, ["loc", [null, [1, 618], [1, 722]]]], ["block", "if", [["get", "session.isAuthenticated", ["loc", [null, [1, 752], [1, 775]]]]], [], 3, 4, ["loc", [null, [1, 746], [1, 1021]]]], ["inline", "partial", [["get", "partial_path", ["loc", [null, [1, 1076], [1, 1088]]]]], [], ["loc", [null, [1, 1066], [1, 1090]]]]],
       locals: [],
       templates: [child0, child1, child2, child3, child4]
     };
@@ -2539,6 +2861,110 @@ define("frontend/templates/contacts", ["exports"], function (exports) {
     };
   })());
 });
+define("frontend/templates/event", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template((function () {
+    return {
+      meta: {
+        "revision": "Ember@2.0.3",
+        "loc": {
+          "source": null,
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 1,
+            "column": 615
+          }
+        },
+        "moduleName": "frontend/templates/event.hbs"
+      },
+      arity: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      buildFragment: function buildFragment(dom) {
+        var el0 = dom.createDocumentFragment();
+        var el1 = dom.createElement("div");
+        dom.setAttribute(el1, "class", "ui container event-wrapper");
+        var el2 = dom.createElement("h2");
+        var el3 = dom.createComment("");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("h3");
+        var el3 = dom.createTextNode("Описание:");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("p");
+        var el3 = dom.createComment("");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("h4");
+        dom.setAttribute(el2, "class", "ui horizontal divider header");
+        var el3 = dom.createElement("i");
+        dom.setAttribute(el3, "class", "tag icon");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("div");
+        dom.setAttribute(el2, "class", "additions");
+        var el3 = dom.createElement("div");
+        dom.setAttribute(el3, "class", "address");
+        var el4 = dom.createElement("i");
+        dom.setAttribute(el4, "class", "icon marker");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createTextNode(" ");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createComment("");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("div");
+        dom.setAttribute(el3, "class", "date");
+        var el4 = dom.createElement("i");
+        dom.setAttribute(el4, "class", "icon calendar");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createComment("");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("div");
+        dom.setAttribute(el3, "class", "date");
+        var el4 = dom.createElement("i");
+        dom.setAttribute(el4, "class", "icon clock");
+        dom.appendChild(el3, el4);
+        var el4 = dom.createComment("");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("h4");
+        dom.setAttribute(el2, "class", "ui horizontal divider header");
+        var el3 = dom.createElement("i");
+        dom.setAttribute(el3, "class", "tag icon");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("div");
+        dom.setAttribute(el2, "class", "map-component");
+        var el3 = dom.createComment("");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        return el0;
+      },
+      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+        var element0 = dom.childAt(fragment, [0]);
+        var element1 = dom.childAt(element0, [4]);
+        var morphs = new Array(6);
+        morphs[0] = dom.createMorphAt(dom.childAt(element0, [0]), 0, 0);
+        morphs[1] = dom.createMorphAt(dom.childAt(element0, [2]), 0, 0);
+        morphs[2] = dom.createMorphAt(dom.childAt(element1, [0]), 2, 2);
+        morphs[3] = dom.createMorphAt(dom.childAt(element1, [1]), 1, 1);
+        morphs[4] = dom.createMorphAt(dom.childAt(element1, [2]), 1, 1);
+        morphs[5] = dom.createMorphAt(dom.childAt(element0, [6]), 0, 0);
+        return morphs;
+      },
+      statements: [["content", "model.title", ["loc", [null, [1, 44], [1, 59]]]], ["content", "model.description", ["loc", [null, [1, 85], [1, 106]]]], ["content", "model.address", ["loc", [null, [1, 257], [1, 274]]]], ["content", "model.formattedDate", ["loc", [null, [1, 327], [1, 350]]]], ["content", "model.formattedTime", ["loc", [null, [1, 400], [1, 423]]]], ["inline", "map-component", [], ["baloonContent", ["subexpr", "@mut", [["get", "model.baloonContent", ["loc", [null, [1, 562], [1, 581]]]]], [], []], "marker", ["subexpr", "@mut", [["get", "model.marker", ["loc", [null, [1, 589], [1, 601]]]]], [], []]], ["loc", [null, [1, 532], [1, 603]]]]],
+      locals: [],
+      templates: []
+    };
+  })());
+});
 define("frontend/templates/events", ["exports"], function (exports) {
   exports["default"] = Ember.HTMLBars.template((function () {
     var child0 = (function () {
@@ -2659,6 +3085,123 @@ define("frontend/templates/events", ["exports"], function (exports) {
     };
   })());
 });
+define("frontend/templates/new-event", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template((function () {
+    return {
+      meta: {
+        "revision": "Ember@2.0.3",
+        "loc": {
+          "source": null,
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 1,
+            "column": 940
+          }
+        },
+        "moduleName": "frontend/templates/new-event.hbs"
+      },
+      arity: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      buildFragment: function buildFragment(dom) {
+        var el0 = dom.createDocumentFragment();
+        var el1 = dom.createElement("div");
+        dom.setAttribute(el1, "class", "ui container");
+        var el2 = dom.createElement("h2");
+        dom.setAttribute(el2, "class", "center");
+        var el3 = dom.createTextNode("Создание события");
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        var el2 = dom.createElement("form");
+        dom.setAttribute(el2, "class", "ui form");
+        var el3 = dom.createElement("div");
+        dom.setAttribute(el3, "class", "two fields");
+        var el4 = dom.createElement("div");
+        dom.setAttribute(el4, "class", "field");
+        var el5 = dom.createElement("label");
+        var el6 = dom.createTextNode("Название");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        var el5 = dom.createComment("");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createElement("div");
+        dom.setAttribute(el4, "class", "field");
+        var el5 = dom.createElement("label");
+        var el6 = dom.createTextNode("Дата и время проведения");
+        dom.appendChild(el5, el6);
+        dom.appendChild(el4, el5);
+        var el5 = dom.createComment("");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("div");
+        dom.setAttribute(el3, "class", "field");
+        var el4 = dom.createElement("label");
+        var el5 = dom.createTextNode("Место проведения");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createComment("");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("div");
+        dom.setAttribute(el3, "class", "field");
+        var el4 = dom.createElement("label");
+        var el5 = dom.createTextNode("Краткое описание");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createComment("");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("div");
+        dom.setAttribute(el3, "class", "field");
+        var el4 = dom.createElement("label");
+        var el5 = dom.createTextNode("Описание");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        var el4 = dom.createComment("");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("div");
+        dom.setAttribute(el3, "class", "field");
+        var el4 = dom.createComment("");
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        var el3 = dom.createElement("div");
+        dom.setAttribute(el3, "class", "field");
+        var el4 = dom.createElement("button");
+        dom.setAttribute(el4, "type", "submit");
+        dom.setAttribute(el4, "class", "ui button");
+        var el5 = dom.createTextNode("Отправить");
+        dom.appendChild(el4, el5);
+        dom.appendChild(el3, el4);
+        dom.appendChild(el2, el3);
+        dom.appendChild(el1, el2);
+        dom.appendChild(el0, el1);
+        return el0;
+      },
+      buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+        var element0 = dom.childAt(fragment, [0, 1]);
+        var element1 = dom.childAt(element0, [0]);
+        var morphs = new Array(7);
+        morphs[0] = dom.createElementMorph(element0);
+        morphs[1] = dom.createMorphAt(dom.childAt(element1, [0]), 1, 1);
+        morphs[2] = dom.createMorphAt(dom.childAt(element1, [1]), 1, 1);
+        morphs[3] = dom.createMorphAt(dom.childAt(element0, [1]), 1, 1);
+        morphs[4] = dom.createMorphAt(dom.childAt(element0, [2]), 1, 1);
+        morphs[5] = dom.createMorphAt(dom.childAt(element0, [3]), 1, 1);
+        morphs[6] = dom.createMorphAt(dom.childAt(element0, [4]), 0, 0);
+        return morphs;
+      },
+      statements: [["element", "action", ["create"], ["on", "submit"], ["loc", [null, [1, 72], [1, 103]]]], ["inline", "input", [], ["placeholder", "Примерное название", "type", "text", "required", true, "value", ["subexpr", "@mut", [["get", "model.title", ["loc", [null, [1, 259], [1, 270]]]]], [], []]], ["loc", [null, [1, 186], [1, 272]]]], ["inline", "datetimepicker-component", [], ["value", ["subexpr", "@mut", [["get", "model.date", ["loc", [null, [1, 368], [1, 378]]]]], [], []], "required", true], ["loc", [null, [1, 335], [1, 394]]]], ["inline", "input", [], ["type", "text", "required", true, "value", ["subexpr", "@mut", [["get", "model.address", ["loc", [null, [1, 496], [1, 509]]]]], [], []]], ["loc", [null, [1, 456], [1, 511]]]], ["inline", "input", [], ["type", "text", "required", true, "value", ["subexpr", "@mut", [["get", "model.short_description", ["loc", [null, [1, 607], [1, 630]]]]], [], []]], ["loc", [null, [1, 567], [1, 632]]]], ["inline", "textarea", [], ["rows", "2", "value", ["subexpr", "@mut", [["get", "model.description", ["loc", [null, [1, 706], [1, 723]]]]], [], []]], ["loc", [null, [1, 680], [1, 725]]]], ["inline", "marker-select", [], ["value", ["subexpr", "@mut", [["get", "model.title", ["loc", [null, [1, 772], [1, 783]]]]], [], []], "value", ["subexpr", "@mut", [["get", "model.marker", ["loc", [null, [1, 790], [1, 802]]]]], [], []], "baloonContent", ["subexpr", "@mut", [["get", "model.baloonContent", ["loc", [null, [1, 817], [1, 836]]]]], [], []]], ["loc", [null, [1, 750], [1, 838]]]]],
+      locals: [],
+      templates: []
+    };
+  })());
+});
 define("frontend/templates/partials/events-modal", ["exports"], function (exports) {
   exports["default"] = Ember.HTMLBars.template((function () {
     var child0 = (function () {
@@ -2696,10 +3239,10 @@ define("frontend/templates/partials/events-modal", ["exports"], function (export
             return el0;
           },
           buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-            var element2 = dom.childAt(fragment, [0]);
+            var element3 = dom.childAt(fragment, [0]);
             var morphs = new Array(2);
-            morphs[0] = dom.createMorphAt(element2, 0, 0);
-            morphs[1] = dom.createMorphAt(element2, 2, 2);
+            morphs[0] = dom.createMorphAt(element3, 0, 0);
+            morphs[1] = dom.createMorphAt(element3, 2, 2);
             return morphs;
           },
           statements: [["content", "modalEvents.length", ["loc", [null, [1, 229], [1, 251]]]], ["content", "rightEndWord", ["loc", [null, [1, 257], [1, 273]]]]],
@@ -2708,6 +3251,46 @@ define("frontend/templates/partials/events-modal", ["exports"], function (export
         };
       })();
       var child1 = (function () {
+        var child0 = (function () {
+          return {
+            meta: {
+              "revision": "Ember@2.0.3",
+              "loc": {
+                "source": null,
+                "start": {
+                  "line": 1,
+                  "column": 603
+                },
+                "end": {
+                  "line": 1,
+                  "column": 714
+                }
+              },
+              "moduleName": "frontend/templates/partials/events-modal.hbs"
+            },
+            arity: 0,
+            cachedFragment: null,
+            hasRendered: false,
+            buildFragment: function buildFragment(dom) {
+              var el0 = dom.createDocumentFragment();
+              var el1 = dom.createElement("button");
+              dom.setAttribute(el1, "class", "ui button");
+              var el2 = dom.createTextNode("Перейти к событию");
+              dom.appendChild(el1, el2);
+              dom.appendChild(el0, el1);
+              return el0;
+            },
+            buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+              var element0 = dom.childAt(fragment, [0]);
+              var morphs = new Array(1);
+              morphs[0] = dom.createElementMorph(element0);
+              return morphs;
+            },
+            statements: [["element", "action", ["closeEventsModal"], [], ["loc", [null, [1, 640], [1, 669]]]]],
+            locals: [],
+            templates: []
+          };
+        })();
         return {
           meta: {
             "revision": "Ember@2.0.3",
@@ -2719,7 +3302,7 @@ define("frontend/templates/partials/events-modal", ["exports"], function (export
               },
               "end": {
                 "line": 1,
-                "column": 591
+                "column": 738
               }
             },
             "moduleName": "frontend/templates/partials/events-modal.hbs"
@@ -2752,21 +3335,27 @@ define("frontend/templates/partials/events-modal", ["exports"], function (export
             var el3 = dom.createComment("");
             dom.appendChild(el2, el3);
             dom.appendChild(el1, el2);
+            var el2 = dom.createElement("div");
+            dom.setAttribute(el2, "class", "link");
+            var el3 = dom.createComment("");
+            dom.appendChild(el2, el3);
+            dom.appendChild(el1, el2);
             dom.appendChild(el0, el1);
             return el0;
           },
           buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-            var element0 = dom.childAt(fragment, [0]);
-            var element1 = dom.childAt(element0, [0]);
-            var morphs = new Array(3);
-            morphs[0] = dom.createMorphAt(dom.childAt(element1, [0]), 0, 0);
-            morphs[1] = dom.createMorphAt(dom.childAt(element1, [1]), 1, 1);
-            morphs[2] = dom.createMorphAt(dom.childAt(element0, [1]), 0, 0);
+            var element1 = dom.childAt(fragment, [0]);
+            var element2 = dom.childAt(element1, [0]);
+            var morphs = new Array(4);
+            morphs[0] = dom.createMorphAt(dom.childAt(element2, [0]), 0, 0);
+            morphs[1] = dom.createMorphAt(dom.childAt(element2, [1]), 1, 1);
+            morphs[2] = dom.createMorphAt(dom.childAt(element1, [1]), 0, 0);
+            morphs[3] = dom.createMorphAt(dom.childAt(element1, [2]), 0, 0);
             return morphs;
           },
-          statements: [["content", "event.title", ["loc", [null, [1, 411], [1, 426]]]], ["content", "event.formattedTime", ["loc", [null, [1, 486], [1, 509]]]], ["content", "event.short_description", ["loc", [null, [1, 552], [1, 579]]]]],
+          statements: [["content", "event.title", ["loc", [null, [1, 411], [1, 426]]]], ["content", "event.formattedTime", ["loc", [null, [1, 486], [1, 509]]]], ["content", "event.short_description", ["loc", [null, [1, 552], [1, 579]]]], ["block", "link-to", ["event", ["get", "event.id", ["loc", [null, [1, 622], [1, 630]]]]], [], 0, null, ["loc", [null, [1, 603], [1, 726]]]]],
           locals: ["event"],
-          templates: []
+          templates: [child0]
         };
       })();
       return {
@@ -2780,7 +3369,7 @@ define("frontend/templates/partials/events-modal", ["exports"], function (export
             },
             "end": {
               "line": 1,
-              "column": 618
+              "column": 765
             }
           },
           "moduleName": "frontend/templates/partials/events-modal.hbs"
@@ -2814,15 +3403,15 @@ define("frontend/templates/partials/events-modal", ["exports"], function (export
           return el0;
         },
         buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var element3 = dom.childAt(fragment, [0, 0]);
-          var element4 = dom.childAt(element3, [0]);
+          var element4 = dom.childAt(fragment, [0, 0]);
+          var element5 = dom.childAt(element4, [0]);
           var morphs = new Array(3);
-          morphs[0] = dom.createMorphAt(dom.childAt(element4, [0]), 0, 0);
-          morphs[1] = dom.createMorphAt(element4, 1, 1);
-          morphs[2] = dom.createMorphAt(dom.childAt(element3, [1]), 0, 0);
+          morphs[0] = dom.createMorphAt(dom.childAt(element5, [0]), 0, 0);
+          morphs[1] = dom.createMorphAt(element5, 1, 1);
+          morphs[2] = dom.createMorphAt(dom.childAt(element4, [1]), 0, 0);
           return morphs;
         },
-        statements: [["content", "modalDay", ["loc", [null, [1, 161], [1, 173]]]], ["block", "if", [["get", "modalEvents.length", ["loc", [null, [1, 185], [1, 203]]]]], [], 0, null, ["loc", [null, [1, 179], [1, 286]]]], ["block", "each", [["get", "modalEvents", ["loc", [null, [1, 321], [1, 332]]]]], [], 1, null, ["loc", [null, [1, 313], [1, 600]]]]],
+        statements: [["content", "modalDay", ["loc", [null, [1, 161], [1, 173]]]], ["block", "if", [["get", "modalEvents.length", ["loc", [null, [1, 185], [1, 203]]]]], [], 0, null, ["loc", [null, [1, 179], [1, 286]]]], ["block", "each", [["get", "modalEvents", ["loc", [null, [1, 321], [1, 332]]]]], [], 1, null, ["loc", [null, [1, 313], [1, 747]]]]],
         locals: [],
         templates: [child0, child1]
       };
@@ -2838,7 +3427,7 @@ define("frontend/templates/partials/events-modal", ["exports"], function (export
           },
           "end": {
             "line": 1,
-            "column": 631
+            "column": 778
           }
         },
         "moduleName": "frontend/templates/partials/events-modal.hbs"
@@ -2859,7 +3448,7 @@ define("frontend/templates/partials/events-modal", ["exports"], function (export
         dom.insertBoundary(fragment, null);
         return morphs;
       },
-      statements: [["block", "ui-modal", [], ["name", "events-modal", "class", "small eventsModal"], 0, null, ["loc", [null, [1, 0], [1, 631]]]]],
+      statements: [["block", "ui-modal", [], ["name", "events-modal", "class", "small eventsModal"], 0, null, ["loc", [null, [1, 0], [1, 778]]]]],
       locals: [],
       templates: [child0]
     };
@@ -2868,6 +3457,45 @@ define("frontend/templates/partials/events-modal", ["exports"], function (export
 define("frontend/templates/partials/login-modal", ["exports"], function (exports) {
   exports["default"] = Ember.HTMLBars.template((function () {
     var child0 = (function () {
+      var child0 = (function () {
+        return {
+          meta: {
+            "revision": "Ember@2.0.3",
+            "loc": {
+              "source": null,
+              "start": {
+                "line": 1,
+                "column": 810
+              },
+              "end": {
+                "line": 1,
+                "column": 890
+              }
+            },
+            "moduleName": "frontend/templates/partials/login-modal.hbs"
+          },
+          arity: 0,
+          cachedFragment: null,
+          hasRendered: false,
+          buildFragment: function buildFragment(dom) {
+            var el0 = dom.createDocumentFragment();
+            var el1 = dom.createElement("span");
+            var el2 = dom.createTextNode("Создайте аккаунт");
+            dom.appendChild(el1, el2);
+            dom.appendChild(el0, el1);
+            return el0;
+          },
+          buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
+            var element0 = dom.childAt(fragment, [0]);
+            var morphs = new Array(1);
+            morphs[0] = dom.createElementMorph(element0);
+            return morphs;
+          },
+          statements: [["element", "action", ["closeLoginModal"], [], ["loc", [null, [1, 838], [1, 866]]]]],
+          locals: [],
+          templates: []
+        };
+      })();
       return {
         meta: {
           "revision": "Ember@2.0.3",
@@ -2879,7 +3507,7 @@ define("frontend/templates/partials/login-modal", ["exports"], function (exports
             },
             "end": {
               "line": 1,
-              "column": 855
+              "column": 920
             }
           },
           "moduleName": "frontend/templates/partials/login-modal.hbs"
@@ -2945,12 +3573,9 @@ define("frontend/templates/partials/login-modal", ["exports"], function (exports
           dom.appendChild(el2, el3);
           var el3 = dom.createElement("div");
           dom.setAttribute(el3, "class", "ui message");
-          var el4 = dom.createTextNode("Впервые с нами?");
+          var el4 = dom.createTextNode("Впервые с нами? ");
           dom.appendChild(el3, el4);
-          var el4 = dom.createElement("a");
-          dom.setAttribute(el4, "href", "#");
-          var el5 = dom.createTextNode(" Создайте аккаунт");
-          dom.appendChild(el4, el5);
+          var el4 = dom.createComment("");
           dom.appendChild(el3, el4);
           dom.appendChild(el2, el3);
           dom.appendChild(el1, el2);
@@ -2958,19 +3583,21 @@ define("frontend/templates/partials/login-modal", ["exports"], function (exports
           return el0;
         },
         buildRenderNodes: function buildRenderNodes(dom, fragment, contextualElement) {
-          var element0 = dom.childAt(fragment, [0, 0, 2]);
-          var element1 = dom.childAt(element0, [1]);
+          var element1 = dom.childAt(fragment, [0, 0]);
           var element2 = dom.childAt(element1, [2]);
-          var morphs = new Array(4);
-          morphs[0] = dom.createMorphAt(dom.childAt(element0, [0]), 0, 0);
-          morphs[1] = dom.createMorphAt(dom.childAt(element1, [0, 0]), 1, 1);
-          morphs[2] = dom.createMorphAt(dom.childAt(element1, [1, 0]), 1, 1);
-          morphs[3] = dom.createElementMorph(element2);
+          var element3 = dom.childAt(element2, [1]);
+          var element4 = dom.childAt(element3, [2]);
+          var morphs = new Array(5);
+          morphs[0] = dom.createMorphAt(dom.childAt(element2, [0]), 0, 0);
+          morphs[1] = dom.createMorphAt(dom.childAt(element3, [0, 0]), 1, 1);
+          morphs[2] = dom.createMorphAt(dom.childAt(element3, [1, 0]), 1, 1);
+          morphs[3] = dom.createElementMorph(element4);
+          morphs[4] = dom.createMorphAt(dom.childAt(element1, [3]), 1, 1);
           return morphs;
         },
-        statements: [["content", "loginError", ["loc", [null, [1, 316], [1, 330]]]], ["inline", "input", [], ["type", "email", "placeholder", "Email", "value", ["subexpr", "@mut", [["get", "identification", ["loc", [null, [1, 491], [1, 505]]]]], [], []]], ["loc", [null, [1, 444], [1, 507]]]], ["inline", "input", [], ["type", "password", "placeholder", "Пароль", "value", ["subexpr", "@mut", [["get", "password", ["loc", [null, [1, 646], [1, 654]]]]], [], []]], ["loc", [null, [1, 595], [1, 656]]]], ["element", "action", ["authenticate"], [], ["loc", [null, [1, 673], [1, 698]]]]],
+        statements: [["content", "loginError", ["loc", [null, [1, 316], [1, 330]]]], ["inline", "input", [], ["type", "email", "placeholder", "Email", "value", ["subexpr", "@mut", [["get", "identification", ["loc", [null, [1, 491], [1, 505]]]]], [], []]], ["loc", [null, [1, 444], [1, 507]]]], ["inline", "input", [], ["type", "password", "placeholder", "Пароль", "value", ["subexpr", "@mut", [["get", "password", ["loc", [null, [1, 646], [1, 654]]]]], [], []]], ["loc", [null, [1, 595], [1, 656]]]], ["element", "action", ["authenticate"], [], ["loc", [null, [1, 673], [1, 698]]]], ["block", "link-to", ["sign-up"], [], 0, null, ["loc", [null, [1, 810], [1, 902]]]]],
         locals: [],
-        templates: []
+        templates: [child0]
       };
     })();
     return {
@@ -2984,7 +3611,7 @@ define("frontend/templates/partials/login-modal", ["exports"], function (exports
           },
           "end": {
             "line": 1,
-            "column": 868
+            "column": 933
           }
         },
         "moduleName": "frontend/templates/partials/login-modal.hbs"
@@ -3005,7 +3632,7 @@ define("frontend/templates/partials/login-modal", ["exports"], function (exports
         dom.insertBoundary(fragment, null);
         return morphs;
       },
-      statements: [["block", "ui-modal", [], ["name", "login-modal", "class", "small loginModal"], 0, null, ["loc", [null, [1, 0], [1, 868]]]]],
+      statements: [["block", "ui-modal", [], ["name", "login-modal", "class", "small loginModal"], 0, null, ["loc", [null, [1, 0], [1, 933]]]]],
       locals: [],
       templates: [child0]
     };
@@ -3102,6 +3729,40 @@ define("frontend/templates/partials/navigation-slider/contacts", ["exports"], fu
         var el2 = dom.createTextNode("Помогайте другим, находите единомышленников, участвуйте в эксклюзивных ивентах вместе с проектом фонда «Солнечный город» #этопросто");
         dom.appendChild(el1, el2);
         dom.appendChild(el0, el1);
+        return el0;
+      },
+      buildRenderNodes: function buildRenderNodes() {
+        return [];
+      },
+      statements: [],
+      locals: [],
+      templates: []
+    };
+  })());
+});
+define("frontend/templates/partials/navigation-slider/event", ["exports"], function (exports) {
+  exports["default"] = Ember.HTMLBars.template((function () {
+    return {
+      meta: {
+        "revision": "Ember@2.0.3",
+        "loc": {
+          "source": null,
+          "start": {
+            "line": 1,
+            "column": 0
+          },
+          "end": {
+            "line": 1,
+            "column": 0
+          }
+        },
+        "moduleName": "frontend/templates/partials/navigation-slider/event.hbs"
+      },
+      arity: 0,
+      cachedFragment: null,
+      hasRendered: false,
+      buildFragment: function buildFragment(dom) {
+        var el0 = dom.createDocumentFragment();
         return el0;
       },
       buildRenderNodes: function buildRenderNodes() {
@@ -3480,11 +4141,11 @@ define("frontend/templates/sign-up", ["exports"], function (exports) {
 /* jshint ignore:start */
 
 define('frontend/config/environment', ['ember'], function(Ember) {
-  return { 'default': {"modulePrefix":"frontend","environment":"development","baseURL":"/","locationType":"auto","EmberENV":{"FEATURES":{}},"APP":{"name":"frontend","version":"0.0.0."},"contentSecurityPolicyHeader":"Content-Security-Policy-Report-Only","contentSecurityPolicy":{"default-src":"'none'","script-src":"'self' 'unsafe-eval'","font-src":"'self'","connect-src":"'self'","img-src":"'self'","style-src":"'self'","media-src":"'self'"},"browserify":{"tests":true}}};
+  return { 'default': {"modulePrefix":"frontend","environment":"development","baseURL":"/","locationType":"auto","EmberENV":{"FEATURES":{}},"APP":{"name":"frontend","version":"0.0.0.d208b3c7"},"contentSecurityPolicyHeader":"Content-Security-Policy-Report-Only","contentSecurityPolicy":{"default-src":"'none'","script-src":"'self' 'unsafe-eval'","font-src":"'self'","connect-src":"'self'","img-src":"'self'","style-src":"'self'","media-src":"'self'"},"browserify":{"tests":true}}};
 });
 
 if (!runningTests) {
-  require("frontend/app")["default"].create({"name":"frontend","version":"0.0.0."});
+  require("frontend/app")["default"].create({"name":"frontend","version":"0.0.0.d208b3c7"});
 }
 
 /* jshint ignore:end */

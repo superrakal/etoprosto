@@ -1,1 +1,0 @@
-/home/egor/RubymineProjects/projectx/frontend/node_modules/active-model-adapter/app/initializers/active-model-adapter.js

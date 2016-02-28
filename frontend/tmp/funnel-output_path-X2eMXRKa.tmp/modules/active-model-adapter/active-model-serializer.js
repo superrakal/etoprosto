@@ -1,1 +1,0 @@
-/home/egor/RubymineProjects/projectx/frontend/tmp/funnel-input_base_path-EDOAbtED.tmp/0/active-model-serializer.js

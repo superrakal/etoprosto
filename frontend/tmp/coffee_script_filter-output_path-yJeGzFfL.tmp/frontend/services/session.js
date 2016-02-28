@@ -1,1 +1,0 @@
-/home/egor/RubymineProjects/projectx/frontend/node_modules/ember-simple-auth/app/services/session.js

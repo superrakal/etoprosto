@@ -6,6 +6,8 @@ class Event
   field :short_description
   field :description
   field :date, type: DateTime
+  field :address
+  field :marker
 
 
   belongs_to :category

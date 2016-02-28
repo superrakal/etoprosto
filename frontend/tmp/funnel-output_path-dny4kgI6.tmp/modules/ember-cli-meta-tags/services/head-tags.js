@@ -1,1 +1,0 @@
-/home/egor/RubymineProjects/projectx/frontend/tmp/funnel-input_base_path-hyud9vLE.tmp/0/services/head-tags.js

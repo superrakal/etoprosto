@@ -27,6 +27,11 @@ DayComponentComponent = Ember.Component.extend
       @get('events_count')
   ).property('events_count')
 
+  isToday: (->
+    date = moment([@get('selectedYear'), @get('selectedMonth'), @get('dateNumber')])
+    moment().isSame(date, 'day')
+  ).property('dateNumber', 'selectedYear', 'selectedMonth')
+
   isActualDay: (->
     startDate = moment([@get('selectedYear'), @get('selectedMonth'), @get('dateNumber')])
     endDate =   moment(startDate).endOf('day')

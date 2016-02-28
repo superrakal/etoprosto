@@ -1,1 +1,0 @@
-/home/egor/RubymineProjects/projectx/frontend/tmp/funnel-input_base_path-N4GYaz71.tmp/0/components/bread-crumbs.js

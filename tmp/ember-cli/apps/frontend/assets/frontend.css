@@ -76,14 +76,68 @@
 .pull-right {
   float: right; }
 
+.masthead.segment {
+  min-height: 450px !important; }
+
 .masthead h2 {
   color: #34495e !important; }
+
+.site-logo {
+  position: absolute;
+  top: 90px;
+  left: 50%;
+  margin-left: -250px;
+  color: #34495e; }
+  .site-logo .logo-wrapper {
+    position: relative; }
+  .site-logo span.this {
+    position: absolute;
+    top: 10px;
+    left: 95px;
+    font-size: 40px; }
+  .site-logo span.hashtag {
+    position: absolute;
+    top: 12px;
+    left: 75px;
+    font-size: 30px; }
+  .site-logo span.simple {
+    position: absolute;
+    top: 45px;
+    left: 220px;
+    font-size: 40px; }
+  .site-logo .logo {
+    width: 177px;
+    height: 60px;
+    background: url("/assets/images/logo.png") center no-repeat;
+    background-size: contain;
+    position: absolute;
+    top: 10px;
+    left: 100px; }
+
+@media only screen and (max-width: 700px) {
+  .site-logo {
+    margin-left: -200px !important; }
+  .masthead h1.ui.header {
+    margin-top: 3.5em !important; } }
+
+.loginModal img {
+  margin-top: 10px !important;
+  height: 60px !important;
+  width: auto !important; }
+
+.footer.segment {
+  padding: 0; }
 
 .form-errors {
   color: darkred; }
 
 .password {
   max-width: 300px; }
+
+.event-wrapper .additions > div {
+  margin: 15px 0; }
+  .event-wrapper .additions > div > * {
+    font-size: 20px; }
 
 .calendar .day {
   border-radius: 5px; }
@@ -95,8 +149,19 @@
     font-weight: bold;
     font-size: 30px;
     background-color: #eceff4; }
-    .calendar .day .number.muted {
-      color: #ABAEB2 !important; }
+    .calendar .day .number.today {
+      background-color: #2a3c4d !important;
+      color: white; }
+  .calendar .day.muted .number {
+    background-color: transparent !important;
+    color: #ABAEB2 !important; }
+  .calendar .day.muted .head {
+    background-color: #D8DDE4 !important; }
+    .calendar .day.muted .head i {
+      color: #2a3c4d; }
+    .calendar .day.muted .head span {
+      background-color: transparent !important;
+      color: #2a3c4d; }
   .calendar .day .head {
     width: 100%;
     height: 40px;
@@ -131,8 +196,8 @@
     display: inline-block; }
 
 .event {
-  padding: 10px;
-  border-bottom: 2px solid #b1fdc3; }
+  padding: 15px;
+  border-bottom: 2px solid #34495e; }
   .event .title {
     max-width: 80%;
     overflow: hidden;
@@ -144,15 +209,18 @@
   .event .head {
     width: 100%;
     height: 30px; }
+  .event .link {
+    text-align: right; }
 
 .eventsModal .content {
   max-height: 300px;
   overflow: auto; }
 
 .eventsModal .header {
-  background: #b1fdc3;
+  background: #34495e;
   padding: 10px 15px;
-  height: 40px; }
+  height: 40px;
+  color: white; }
 
 .ui.inverted.segment {
   background: #eceff4; }
@@ -187,5 +255,9 @@
 
 .ui.secondary.inverted.pointing.menu > .item:hover {
   color: #b1fdc3 !important; }
+
+.marker-select #map, .map-component #map {
+  width: 100%;
+  height: 400px; }
 
 /*# sourceMappingURL=frontend.css.map */

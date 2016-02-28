@@ -1,1 +1,0 @@
-/home/egor/RubymineProjects/projectx/frontend/tmp/funnel-input_base_path-8Aazngov.tmp/0//vendor-suffix.js

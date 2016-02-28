@@ -1,0 +1,24 @@
+.ui.container
+  h2.center Создание события
+  form.ui.form{action 'create' on='submit'}
+    .two.fields
+      .field
+        label Название
+        = input placeholder="Примерное название" type="text" required=true value=model.title
+      .field
+        label Дата и время проведения
+        =  datetimepicker-component value=model.date required=true
+
+    .field
+      label Место проведения
+      = input type="text" required=true value=model.address
+    .field
+      label Краткое описание
+      = input type="text" required=true value=model.short_description
+    .field
+      label Описание
+      = textarea rows="2" value=model.description
+    .field
+      = marker-select value=model.title value=model.marker baloonContent=model.baloonContent
+    .field
+      button.ui.button type="submit" Отправить

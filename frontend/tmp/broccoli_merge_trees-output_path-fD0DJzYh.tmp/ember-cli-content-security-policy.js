@@ -1,1 +1,0 @@
-/home/egor/RubymineProjects/projectx/frontend/tmp/reexporter-output_path-qKE3srpg.tmp/reexports/ember-cli-content-security-policy.js

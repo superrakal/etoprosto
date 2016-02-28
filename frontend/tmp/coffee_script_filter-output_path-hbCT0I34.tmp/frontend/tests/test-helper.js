@@ -1,1 +1,0 @@
-/home/egor/RubymineProjects/projectx/frontend/tests/test-helper.js

@@ -1,0 +1,23 @@
+.ui.container.event-wrapper
+  h2
+    = model.title
+  h3 Описание:
+  p
+    = model.description
+  h4.ui.horizontal.divider.header
+    i.tag.icon
+  .additions
+    .address
+      i.icon.marker
+      |&nbsp;
+      = model.address
+    .date
+      i.icon.calendar
+      = model.formattedDate
+    .date
+      i.icon.clock
+      = model.formattedTime
+  h4.ui.horizontal.divider.header
+    i.tag.icon
+  .map-component
+    = map-component baloonContent=model.baloonContent marker=model.marker

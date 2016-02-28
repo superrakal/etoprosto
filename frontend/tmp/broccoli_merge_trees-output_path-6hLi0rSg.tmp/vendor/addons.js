@@ -1,1 +1,0 @@
-/home/egor/RubymineProjects/projectx/frontend/tmp/concat_with_maps-output_path-9nb5J7Lo.tmp/addons.js

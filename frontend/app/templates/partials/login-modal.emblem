@@ -20,5 +20,7 @@ ui-modal class="small loginModal" name="login-modal"
 
           .ui.fluid.large.blue.submit.button{action 'authenticate'} Войти
       .ui.message
-        | Впервые с нами?
-        a href="#"  Создайте аккаунт
+        | Впервые с нами?&nbsp;
+        = link-to 'sign-up'
+          span{action 'closeLoginModal'}
+            |Создайте аккаунт

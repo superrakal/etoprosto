@@ -1,1 +1,0 @@
-/home/egor/RubymineProjects/projectx/frontend/node_modules/ember-cli-meta-tags/app/initializers/head-tags.js

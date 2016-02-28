@@ -66,5 +66,8 @@ EventsController = Ember.Controller.extend
       @set 'modalDay', day.format('DD.MM.YYYY')
       $('.ui.modal.eventsModal').modal('show')
 
+    closeEventsModal:  ->
+      $('.ui.modal.eventsModal').modal('hide')
+
 
 `export default EventsController`

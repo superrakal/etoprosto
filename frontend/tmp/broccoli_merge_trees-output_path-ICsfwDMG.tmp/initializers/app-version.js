@@ -1,1 +1,0 @@
-/home/egor/RubymineProjects/projectx/frontend/tmp/broccoli_merge_trees-input_base_path-ZogYehpV.tmp/5/initializers/app-version.js

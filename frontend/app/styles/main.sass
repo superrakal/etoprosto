@@ -75,5 +75,59 @@
 .pull-right
   float: right
 
+.masthead.segment
+  min-height: 450px !important
+
 .masthead h2
   color: #34495e !important
+
+.site-logo
+  position: absolute
+  top: 90px
+  left: 50%
+  margin-left: -250px
+  color: #34495e
+  .logo-wrapper
+    position: relative
+  span.this
+    position: absolute
+    top: 10px
+    left: 95px
+    font-size: 40px
+
+  span.hashtag
+    position: absolute
+    top: 12px
+    left: 75px
+    font-size: 30px
+
+  span.simple
+    position: absolute
+    top: 45px
+    left: 220px
+    font-size: 40px
+
+  .logo
+    width: 177px
+    height: 60px
+    background: url('/assets/images/logo.png')  center no-repeat
+    background-size: contain
+    position: absolute
+    top: 10px
+    left: 100px
+
+@media only screen and (max-width: 700px)
+  .site-logo
+    margin-left: -200px !important
+
+  .masthead h1.ui.header
+    margin-top: 3.5em !important
+
+.loginModal
+  img
+    margin-top: 10px !important
+    height: 60px !important
+    width: auto !important
+
+.footer.segment
+  padding: 0

@@ -1,1 +1,0 @@
-/home/egor/RubymineProjects/projectx/frontend/app/components/day-component.coffee
